@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#15131a">
+  <title>Circus Genetic — Small Town. Big Noise.</title>
+  <meta name="description" content="Start a band. Survive the gig. Circus Genetic is an 8-bit band survival game with side-scrolling fights, rhythm challenges, questionable parties, and one massive Battle of the Bands.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Circus Genetic — Small Town. Big Noise.">
+  <meta property="og:description" content="Three bandmates. Seven chapters. One very bad night for the equipment. Play the 8-bit band survival game in your browser.">
+  <link rel="icon" href="assets/app-icon.png" type="image/png">
+  <link rel="stylesheet" href="website/site.css">
+  <script src="website/site.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="nav-wrap">
+    <nav class="nav page-width" aria-label="Main navigation">
+      <a class="wordmark" href="#top" aria-label="Circus Genetic home"><img src="assets/app-icon.png" width="48" height="48" alt=""><span>CIRCUS<br>GENETIC<small>THE GAME</small></span></a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links">MENU <span aria-hidden="true">+</span></button>
+      <div class="nav-links" id="nav-links"><a href="#band">THE BAND</a><a href="#chapters">THE NIGHT</a><a href="#controls">HOW TO PLAY</a><a class="button small" href="game.html">PLAY NOW <span aria-hidden="true">↗</span></a></div>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="hero page-width" id="top">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="led" aria-hidden="true"></span> PANTA RHEI PRODUCTIONS PRESENTS</p>
+        <h1>CIRCUS<br><span>GENETIC</span></h1>
+        <p class="hero-tagline">SMALL TOWN.<br>BIG NOISE.</p>
+        <p class="hero-description">Start a band. Survive the gig.<br>Keep the beer off the equipment.</p>
+        <div class="hero-actions"><a class="button" href="game.html"><span class="play-arrow" aria-hidden="true">▶</span> START THE GAME</a><a class="text-link" href="#chapters">CHECK THE SETLIST <span aria-hidden="true">↓</span></a></div>
+        <p class="play-note">PLAY IN YOUR BROWSER · DESKTOP + KEYBOARD</p>
+      </div>
+      <div class="hero-cabinet">
+        <div class="cabinet-top"><span><i class="led" aria-hidden="true"></i> NOISE MACHINE / 001</span><span>8-BIT</span></div>
+        <a class="title-art" href="game.html" aria-label="Play Circus Genetic"><img src="assets/title-v3.webp" width="1448" height="1086" alt="8-bit Matt, Brice, and Tony outside a graffiti-covered wall reading Circus Genetic"><span class="screen-scan" aria-hidden="true"></span></a>
+        <div class="cabinet-bottom"><span class="equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>THREE FRIENDS. ZERO ROADIES.</span><span class="volume">VOL. 11</span></div>
+        <span class="sticker">LOCAL BAND.<br>GLOBAL PROBLEMS.</span>
+      </div>
+    </section>
+    <div class="gig-strip"><div class="page-width"><span>RIFFS</span><b aria-hidden="true">✦</b><span>RHYTHM</span><b aria-hidden="true">✦</b><span>BAR-ROOM BRAWLS</span><b aria-hidden="true">✦</b><span>VERY EXPENSIVE SPILLS</span></div></div>
+    <section class="intro page-width">
+      <p class="eyebrow">A BAND SURVIVAL GAME</p>
+      <h2>THE GIG IS THE<br>EASY PART.<span class="purple"> ALLEGEDLY.</span></h2>
+      <div class="intro-bottom"><p>Bad promoters. Shitty stages. Drunk fans with terrible aim. Get Circus Genetic from the practice room to the last band standing in a night of side-scrolling action and on-beat chaos.</p><div class="facts"><span><strong>03</strong> BANDMATES</span><span><strong>07</strong> CHAPTERS</span><span><strong>30</strong> FINAL-BATTLE RIVALS</span></div></div>
+    </section>
+    <section class="band-section" id="band">
+      <div class="page-width">
+        <div class="section-heading"><div><p class="eyebrow">CHOOSE YOUR PLAYER</p><h2>MEET THE BAND.</h2></div><p>Pick your instrument.<br>It doubles as conflict resolution.</p></div>
+        <div class="band-machine">
+          <div class="player-portrait"><div class="portrait-grid" aria-hidden="true"></div><span class="portrait-label" id="player-number">PLAYER 01</span><div class="sprite" id="band-sprite" aria-hidden="true"></div><div class="floor-line" aria-hidden="true"></div><span class="portrait-caption">READY TO MAKE SOME NOISE</span></div>
+          <div class="player-info">
+            <div class="player-buttons" role="group" aria-label="Choose a band member"><button class="selected" type="button" data-player="0" aria-pressed="true">01 MATT</button><button type="button" data-player="1" aria-pressed="false">02 BRICE</button><button type="button" data-player="2" aria-pressed="false">03 TONY</button></div>
+            <div class="player-details" aria-live="polite"><p class="eyebrow" id="player-role">BASS GUITAR</p><h3 id="player-name">MATT</h3><p id="player-copy">Four strings. One low-end problem solver. Bring the bass to practice, the stage, and the middle of a bar fight.</p><div class="instrument-line"><span>LOADOUT</span><strong id="player-loadout">BASS GUITAR</strong></div></div>
+            <p class="band-tip"><span aria-hidden="true">✦</span> In the final battle, press <kbd>X</kbd> to switch between all three.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="chapters-section page-width" id="chapters">
+      <div class="section-heading"><div><p class="eyebrow">TONIGHT'S SETLIST</p><h2>FROM GARAGE<br>TO GLORY. MAYBE.</h2></div><p>Seven chapters.<br>No sensible decisions.</p></div>
+      <div class="chapter-browser">
+        <div class="chapter-list" role="group" aria-label="Browse chapters">
+          <button type="button" data-chapter="0" class="selected" aria-pressed="true"><span>01</span><strong>PRACTICE</strong><i aria-hidden="true">↗</i></button>
+          <button type="button" data-chapter="1" aria-pressed="false"><span>02</span><strong>SOUND CHECK</strong><i aria-hidden="true">↗</i></button>
+          <button type="button" data-chapter="2" aria-pressed="false"><span>03</span><strong>THE SHOW</strong><i aria-hidden="true">↗</i></button>
+          <button type="button" data-chapter="3" aria-pressed="false"><span>04</span><strong>THE AMP BLEW</strong><i aria-hidden="true">↗</i></button>
+          <button type="button" data-chapter="4" aria-pressed="false"><span>05</span><strong>GROUPIE SCORECARD</strong><i aria-hidden="true">↗</i></button>
+          <button type="button" data-chapter="5" aria-pressed="false"><span>06</span><strong>AFTER PARTY</strong><i aria-hidden="true">↗</i></button>
+          <button type="button" data-chapter="6" aria-pressed="false"><span>07</span><strong>BATTLE OF THE BANDS</strong><i aria-hidden="true">↗</i></button>
+        </div>
+        <div class="chapter-preview"><div class="cd-sleeve"><img id="chapter-art" src="assets/chapter-practice.webp" width="448" height="448" loading="lazy" alt="8-bit rehearsal room with a drum kit, guitars, and amps"><span class="cd-label" id="chapter-counter">TRACK 01 / 07</span></div><div class="chapter-info" aria-live="polite"><p class="eyebrow" id="chapter-type">RHYTHM / GARAGE REHEARSAL</p><h3 id="chapter-name">PRACTICE</h3><p id="chapter-copy">Match the graffiti arrows on the beat. Your roommate and Tony's blue heeler are already feeling it. Try to catch up.</p></div><p class="chapter-note">Browse here. Pick a chapter from the CD bin inside the game.</p></div>
+      </div>
+    </section>
+    <section class="showcase-section">
+      <div class="page-width"><div class="section-heading"><div><p class="eyebrow">ALL PIXELS. ALL PROBLEMS.</p><h2>TURN IT UP.<br>THROW DOWN.</h2></div><p>Original band music.<br>Gloriously bad circumstances.</p></div>
+        <div class="art-gallery"><figure><img src="assets/live.webp" width="1448" height="1086" loading="lazy" alt="Pixel-art Circus Genetic playing a dive-bar stage"><figcaption><span>01 / ON STAGE</span><strong>HIT THE NOTES. HOLD THE STAGE.</strong></figcaption></figure><figure><img src="assets/amp-power.webp" width="1448" height="1086" loading="lazy" alt="Pixel-art amp, beer, pedals, and smoking ashtray"><figcaption><span>02 / BEFORE THE FIRST NOTE</span><strong>EVERY GREAT NIGHT STARTS AT 11.</strong></figcaption></figure></div>
+      </div>
+    </section>
+    <section class="controls-section page-width" id="controls">
+      <div class="section-heading"><div><p class="eyebrow">READ THIS BEFORE BREAKING THINGS</p><h2>KNOW YOUR KEYS.</h2></div><p>Keyboard recommended.<br>Coordination negotiable.</p></div>
+      <div class="control-columns"><div class="control-panel"><h3><span>01</span> ON THE FLOOR</h3><dl><div><dt><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / ARROWS</dt><dd>Move</dd></div><div><dt><kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd></dt><dd>Strike / Heavy / Dash</dd></div><div><dt><kbd>SPACE</kbd></dt><dd>Jump</dd></div><div><dt><kbd>E</kbd></dt><dd>Interact / Confirm</dd></div><div><dt><kbd>X</kbd></dt><dd>Switch musician in the final battle</dd></div></dl></div>
+        <div class="control-panel"><h3><span>02</span> ON THE BEAT</h3><dl><div><dt><kbd>←</kbd><kbd>↓</kbd><kbd>↑</kbd><kbd>→</kbd></dt><dd>Match the incoming arrows</dd></div><div><dt><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd></dt><dd>Alternate rhythm keys, left to right</dd></div><div><dt><kbd>SPACE</kbd></dt><dd>Release your party-game shot</dd></div><div><dt><kbd>P</kbd> / <kbd>M</kbd></dt><dd>Pause / Toggle music</dd></div></dl><p>Beer Pong: aim left/right. Blowin' O's: aim up/down. Hit Space when direction and power line up.</p></div></div>
+    </section>
+    <section class="faq-section page-width" id="faq"><div><p class="eyebrow">LINER NOTES</p><h2>A FEW THINGS<br>BEFORE THE GIG.</h2></div><div class="faq-list"><details><summary>DO I NEED TO INSTALL ANYTHING?</summary><p>No. The web edition runs in your browser. For the full controls, use a desktop or laptop with a keyboard. Click the amp's power button to start and enable audio.</p></details><details><summary>CAN I SKIP TO A CHAPTER?</summary><p>Yes. Use Chapter Select on the game's title screen, flip through the CD bin, and choose your player. A perfect full-night run starts with Start New Band.</p></details><details><summary>DOES IT SAVE MY RUN?</summary><p>This edition has no mid-level Save/Load. Closing or reloading the game does not preserve a run in progress. Chapter Select lets you revisit sections.</p></details><details><summary>WHAT'S THE VIBE?</summary><p>Strong language, cartoon violence, suggestive humor, alcohol, and smoking/cannabis references. In other words: probably not the game for the kindergarten fundraiser.</p></details><details><summary>IS THERE SOMETHING HIDDEN?</summary><p>Some records have a secret track. Some boxes have a clue.</p><blockquote>Its home keeps moving, but its center has no corners.</blockquote></details></div></section>
+    <section class="final-cta"><div class="page-width"><p class="eyebrow">THE VAN IS RUNNING. PROBABLY.</p><h2>YOUR BAND.<br>YOUR PROBLEM.</h2><a class="button" href="game.html">LET'S MAKE SOME NOISE <span aria-hidden="true">▶</span></a><p>NO INSTALL. JUST PRESS PLAY.</p></div></section>
+  </main>
+  <footer class="footer page-width"><a class="production-brand" href="#top"><img src="assets/panta-rhei-logo.svg" width="48" height="48" alt="Panta Rhei"><span>PANTA RHEI<br>PRODUCTIONS</span></a><p>CIRCUS GENETIC<br><span>SMALL TOWN. BIG NOISE.</span></p><button class="share-button" type="button" id="share-button">SHARE THE NOISE <span aria-hidden="true">↗</span></button><span class="sr-only" id="share-status" role="status"></span></footer>
+</body>
+</html>
