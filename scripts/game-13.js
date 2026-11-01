@@ -1,146 +1,365 @@
-/* Character previews are painted in two pixel layers; the original menu owns input. */
+/* Circus Genetic: supplied portrait artwork, independently animated menu layers. */
 (() => {
   'use strict';
   const select = document.getElementById('select');
   if (!select) return;
   const buttons = [...select.querySelectorAll('[data-player]')];
   if (buttons.length !== 3) return;
-  const P = { ink:'#111621', edge:'#070a10', cream:'#f4e4bd', orange:'#ed873c', pink:'#e95a9d', cyan:'#46c4ca', green:'#b6da67' };
+  const W = 1448, H = 1086;
+  const ink = '#050505', cream = '#fff2bd', gold = '#ffc76b';
   const names = ['MATT', 'BRICE', 'TONY'];
-  const roles = ['BASS GUITAR', 'GUITAR + VOCALS', 'DRUMSTICKS'];
-  const positions = [120, 320, 520], floor = 353;
+  const roles = ['BASS', 'GUITAR + VOCALS', 'DRUMS'];
+  const centers = [222, 724, 1225];
   const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+  const style = document.createElement('style');
+  style.textContent = `
+    #select.cg-portrait-menu { background:#050505; overflow:hidden; }
+    #select.cg-portrait-menu .cg-menu-layer { position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; pointer-events:none; opacity:0; }
+    #select.cg-portrait-menu .cg-menu-background { z-index:0; }
+    #select.cg-portrait-menu .cg-menu-players { z-index:1; }
+    #select.cg-portrait-menu.cg-menu-ready .cg-menu-layer { opacity:1; }
+    #select.cg-portrait-menu.cg-menu-ready > .art { visibility:hidden; }
+    #select.cg-portrait-menu > .art { object-fit:fill; }
+    #select.cg-portrait-menu .choices { position:absolute; inset:11% 0 0; height:89%; min-height:0; width:100%; display:grid; grid-template-columns:repeat(3,1fr); gap:0; padding:0; z-index:3; border:0; background:transparent; }
+    #select.cg-portrait-menu .choices button,
+    #select.cg-portrait-menu .choices button:hover,
+    #select.cg-portrait-menu .choices button.cg-selected { margin:0; padding:0; border:0; border-radius:0; background:transparent; color:transparent; font-size:0!important; box-shadow:none; cursor:pointer; }
+    #select.cg-portrait-menu .choices button small { display:none; }
+    #select.cg-portrait-menu .choices button:focus-visible { outline:3px solid #fff2bd; outline-offset:-7px; }
+    #select.cg-portrait-menu > .skip { top:11.6%; right:8px; bottom:auto!important; z-index:5; background:#050505; color:#fff2bd; border:2px solid #fff2bd; box-shadow:2px 2px #050505; padding:6px 8px; font-size:8px!important; }
+    @media(max-width:600px) { #select.cg-portrait-menu > .skip { right:5px; padding:5px; font-size:7px!important; } }
+  `;
+  document.head.appendChild(style);
+  select.classList.add('cg-portrait-menu');
+  select.setAttribute('aria-label','Select your player. Matt: bass. Brice: guitar and vocals. Tony: drums. Use left or right, then Enter, or click a player.');
+
+  const art = select.querySelector(':scope > .art');
+  if (art) {
+    art.removeAttribute('data-embedded-src');
+    art.src = 'assets/select-portraits-v4.png';
+    art.alt = 'Select your player: Matt on the left in sunglasses and a pink shirt, clean-shaven Brice in the center with a turquoise cap, and Tony on the right in plaid, in front of a graffiti wall.';
+  }
   const layers = ['background','players'].map(name => {
     const canvas = document.createElement('canvas');
-    canvas.width = 640; canvas.height = 480;
+    canvas.width = W; canvas.height = H;
     canvas.className = 'cg-menu-layer cg-menu-' + name;
-    canvas.setAttribute('aria-hidden', 'true');
-    select.insertBefore(canvas, select.firstChild);
+    canvas.setAttribute('aria-hidden','true');
+    select.insertBefore(canvas,select.firstChild);
     return canvas;
   });
   const bg = layers[0].getContext('2d'), g = layers[1].getContext('2d');
   if (!bg || !g) return;
   bg.imageSmoothingEnabled = g.imageSmoothingEnabled = false;
-  const assets = {};
-  let ready = false, picked = -1, selectionAt = 0, clock = 0, last = null, wasActive = false;
-  for (const [key,file] of Object.entries({ room:'scenes.png', band:'band-motion-clean.png', walk:'band-walk-clean.png' })) {
-    const im = new Image();
-    im.onload = () => {
-      ready = Object.values(assets).length === 3 && Object.values(assets).every(loaded);
-      select.classList.toggle('cg-menu-ready', ready);
-    };
-    assets[key] = im;
-    im.src = window.CG_ASSETS?.['assets/' + file] || 'assets/' + file;
-  }
+  const assets = {}, people = [];
+  let ready = false, picked = 0, clock = 0, last = null, wasActive = false;
+  let frameNumber = -1, visibilityPaused = document.hidden;
+  document.addEventListener('visibilitychange',() => { visibilityPaused = document.hidden; last = null; });
+
+  // These are runtime canvas masks, not newly drawn replacement people. The
+  // pixels inside every silhouette come straight from the supplied artwork.
+  const figures = [
+    { x:100, y:120, w:260, h:854, waist:550, neck:280, phase:0,
+      points:[[168,137],[201,123],[250,130],[285,148],[299,174],[300,202],[281,226],[284,255],[304,275],[328,289],[343,316],[351,365],[341,408],[334,442],[338,493],[346,540],[327,559],[313,577],[311,641],[302,699],[285,747],[273,811],[261,857],[278,890],[270,917],[252,940],[209,965],[163,962],[140,948],[142,924],[151,898],[163,875],[171,824],[183,759],[188,687],[195,602],[182,575],[153,581],[139,556],[131,513],[119,475],[109,442],[103,410],[106,365],[110,331],[128,294],[148,278],[165,262],[167,247],[155,224],[151,194],[154,165]] },
+    { x:548, y:135, w:326, h:850, waist:599, neck:303, phase:1.8,
+      points:[[714,144],[757,143],[779,154],[789,179],[803,192],[797,215],[781,226],[787,248],[784,269],[776,289],[795,301],[821,317],[837,343],[846,375],[841,417],[834,476],[819,524],[811,579],[817,597],[838,615],[834,641],[821,655],[825,732],[830,825],[824,871],[846,894],[865,916],[869,937],[863,951],[835,958],[805,955],[777,945],[761,930],[745,951],[714,973],[666,981],[639,974],[628,960],[631,935],[644,905],[650,860],[635,812],[622,748],[616,694],[609,658],[603,642],[585,645],[569,627],[554,616],[556,584],[560,550],[565,508],[562,460],[568,412],[580,372],[596,333],[619,313],[652,301],[673,277],[686,267],[677,245],[660,239],[648,225],[651,202],[660,178],[682,156]] },
+    { x:1028, y:136, w:338, h:853, waist:600, neck:309, phase:3.5,
+      points:[[1140,150],[1176,137],[1212,140],[1241,150],[1247,172],[1233,192],[1240,219],[1238,242],[1230,260],[1215,279],[1205,300],[1238,309],[1267,320],[1292,335],[1311,358],[1329,388],[1339,416],[1335,451],[1331,478],[1318,507],[1305,527],[1306,575],[1322,601],[1334,646],[1349,686],[1358,717],[1352,750],[1335,778],[1317,803],[1297,838],[1282,873],[1281,888],[1308,901],[1335,917],[1350,937],[1333,951],[1313,956],[1274,947],[1255,969],[1220,984],[1183,981],[1153,966],[1141,944],[1147,920],[1151,900],[1145,865],[1136,816],[1125,769],[1119,719],[1114,669],[1108,622],[1098,599],[1076,591],[1068,566],[1066,531],[1057,500],[1043,473],[1033,445],[1031,413],[1036,384],[1045,359],[1061,338],[1086,322],[1110,314],[1129,299],[1136,277],[1120,268],[1108,249],[1109,225],[1119,198],[1133,176]] }
+  ];
   function loaded(im) { return im.complete && im.naturalWidth > 0; }
-  function rect(ctx,x,y,w,h,color) { ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h)); }
-  function text(ctx,label,x,y,size,color,center=false) {
-    label=String(label).toUpperCase();
-    if(center)x-=((label.length*6-1)*size)/2;
-    const font=window.CG_FONT || {};
-    for(const ch of label){
-      const rows=(font[ch] || '00000/00000/00000/00000/00000/00000/00000').split('/');
-      rows.forEach((row,yy)=>[...row].forEach((on,xx)=>{if(on==='1')rect(ctx,x+xx*size,y+yy*size,size,size,color)}));
-      x+=size*6;
+  function preparePeople() {
+    for (const person of figures) {
+      const canvas = document.createElement('canvas');
+      canvas.width = person.w; canvas.height = person.h;
+      const c = canvas.getContext('2d');
+      c.imageSmoothingEnabled = false;
+      c.beginPath();
+      person.points.forEach(([x,y],i) => i ? c.lineTo(x-person.x,y-person.y) : c.moveTo(x-person.x,y-person.y));
+      c.closePath();c.clip();
+      c.drawImage(assets.portraits,-person.x,-person.y,W,H);
+      people.push({...person,canvas});
+    }
+  }
+  for (const [key,file] of Object.entries({plate:'select-wall-v4.png',portraits:'select-portraits-v4.png'})) {
+    const im = new Image(); assets[key] = im;
+    im.onload = () => {
+      if (Object.keys(assets).length === 2 && Object.values(assets).every(loaded) && !ready) {
+        preparePeople(); ready = true; select.classList.add('cg-menu-ready');
+        background(0);foreground(0);
+      }
+    };
+    im.onerror = () => { select.classList.remove('cg-menu-ready'); };
+    im.src = 'assets/' + file;
+  }
+  function rect(c,x,y,w,h,color) { c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h)); }
+  function text(label,x,y,size,color) {
+    label = String(label).toUpperCase();
+    x -= (label.length*6-1)*size/2;
+    for(const ch of label) {
+      const rows = (window.CG_FONT?.[ch] || '00000/00000/00000/00000/00000/00000/00000').split('/');
+      rows.forEach((row,yy) => [...row].forEach((on,xx) => {if(on==='1')rect(g,x+xx*size,y+yy*size,size,size,color);}));
+      x += size*6;
     }
   }
   function choose(index) {
-    if(index<0||index>2)return;
-    if(picked!==index){picked=index;selectionAt=clock;}
-    select.dataset.preview=String(index);
-    buttons.forEach((button,i)=>button.classList.toggle('cg-selected',i===index));
+    if(index<0 || index>2) return;
+    picked = index;
+    select.dataset.preview = String(index);
+    buttons.forEach((button,i) => {
+      button.classList.toggle('cg-selected',i===index);
+      button.setAttribute('aria-pressed',String(i===index));
+      button.setAttribute('aria-label',`Choose ${names[i]}, ${i===0?'bass guitar':i===1?'lead guitar and vocals':'drummer'}`);
+    });
   }
-  buttons.forEach((button,i)=>{
-    button.addEventListener('mouseenter',()=>choose(i));
-    button.addEventListener('focus',()=>choose(i));
-    button.addEventListener('pointerdown',()=>choose(i));
+  buttons.forEach((button,i) => {
+    button.addEventListener('pointerenter',() => choose(i));
+    button.addEventListener('focus',() => choose(i));
+    button.addEventListener('pointerdown',() => choose(i));
   });
   choose(Math.max(0,Math.min(2,Number(document.getElementById('actionCanvas')?.dataset.player)||0)));
 
-  // These classes add pixel cursors without replacing any original click/focus target.
-  for(const region of document.querySelectorAll('.titlemenu, #intro, #info')){
-    const choices=[...region.querySelectorAll('button')];
-    const highlight=button=>choices.forEach(item=>item.classList.toggle('cg-menu-current',item===button));
-    choices.forEach(button=>{
-      button.addEventListener('mouseenter',()=>highlight(button));
-      button.addEventListener('focus',()=>highlight(button));
+  // Leave the original button onclick handlers in charge of starting chapters.
+  // Number keys, mouse, touch and the chapter-selection route remain intact.
+  document.addEventListener('keydown',event => {
+    if (!select.classList.contains('active') || event.altKey || event.ctrlKey || event.metaKey) return;
+    const key = event.key.toLowerCase();
+    const onBack = event.target instanceof Element && event.target.closest('[data-title]');
+    if (onBack && (key==='enter' || key===' ')) return;
+    if (['arrowleft','arrowright','a','d'].includes(key)) {
+      event.preventDefault();event.stopImmediatePropagation();
+      choose((picked+(['arrowleft','a'].includes(key)?2:1))%3);
+      buttons[picked].focus({preventScroll:true});
+    } else if ((key==='enter'||key===' ') && !event.repeat) {
+      event.preventDefault();event.stopImmediatePropagation();buttons[picked].click();
+    }
+  },true);
+
+  // Preserve the established pixel focus cursors on the other game menus.
+  for (const region of document.querySelectorAll('.titlemenu, #intro, #info')) {
+    const choices = [...region.querySelectorAll('button')];
+    const highlight = button => choices.forEach(item => item.classList.toggle('cg-menu-current',item===button));
+    choices.forEach(button => {
+      button.addEventListener('mouseenter',() => highlight(button));
+      button.addEventListener('focus',() => highlight(button));
     });
-    if(choices[0])highlight(choices[0]);
+    if (choices[0]) highlight(choices[0]);
   }
   function background(t) {
-    bg.clearRect(0,0,640,480);
-    rect(bg,0,0,640,480,P.ink);
-    const room=assets.room;
-    bg.drawImage(room,0,0,room.width/2,room.height/2,0,0,640,404);
-    // Separate lamp filaments and amp LEDs animate behind the musicians.
-    for(const [x,y,phase] of [[173,46,0],[438,46,1],[226,72,2]]){
-      const warm=Math.floor(t*3+phase)%4!==0;
-      rect(bg,x-3,y-3,6,6,warm?'#fff0b1':'#ed873c');
-      rect(bg,x-5,y+4,10,2,warm?'#f7ba6f':'#a86a37');
+    bg.clearRect(0,0,W,H);
+    bg.drawImage(assets.plate,0,0,W,H);
+    // Painted wall flecks shimmer on their own layer, behind the characters.
+    if (!reduced?.matches) {
+      for (const [x,y,phase,color] of [[465,164,0,'#38b9ef'],[936,166,1,'#b4dc49'],[969,714,2,'#ef75b6'],[49,611,3,'#f1a3ce']]) {
+        bg.globalAlpha = .14 + Math.max(0,Math.sin(t*1.5+phase))*.26;
+        rect(bg,x,y,6,5,color);rect(bg,x+6,y+5,4,3,color);
+      }
+      bg.globalAlpha = 1;
     }
-    for(const [x,y,phase] of [[178,160,0],[477,187,1]]){
-      rect(bg,x,y,3,3,Math.floor(t*3+phase)%2?P.green:'#45634a');
-    }
-    // A cable rests on the floor; its square bends keep the room physically grounded.
-    rect(bg,56,368,103,3,P.edge);rect(bg,155,368,3,12,P.edge);
-    rect(bg,155,377,273,3,P.edge);rect(bg,425,368,3,12,P.edge);
-    rect(bg,425,368,129,3,P.edge);
-    rect(bg,0,396,640,8,P.edge);
-    for(let x=12;x<640;x+=24)rect(bg,x,397,12,2,x%48?P.pink:P.cyan);
+    // Hide the three baked-in arrows; the foreground paints independent cursors.
+    rect(bg,0,991,W,95,ink);
   }
-  function sprite(who,col,x,size,walking=false) {
-    const im=walking?assets.walk:assets.band,sw=im.width/8,sh=im.height/3;
-    // All clean frames share the same five-pixel transparent space below their soles.
-    const y=Math.round(floor-size+size*5/256);
-    g.drawImage(im,col*sw,who*sh,sw,sh,Math.round(x-size/2),y,size,size);
+  function drawPerson(person,who,t) {
+    const active = who===picked;
+    const phase = t*(active?2.7:1.7)+person.phase;
+    const breath = reduced?.matches ? 0 : Math.sin(phase);
+    const sway = reduced?.matches ? 0 : Math.sin(phase*.73)* (active?3.8:1.8);
+    const tilt = reduced?.matches ? 0 : Math.sin(phase*1.07)* (active?.012:.005);
+    const scale = 1 + breath*(active?.005:.003);
+    const waist = person.waist-person.y;
+    // Keep trousers and shoes fixed. Two-pixel scanline deformation above the
+    // waist gives breathing, a shoulder rock and a small independent head nod.
+    g.drawImage(person.canvas,0,waist,person.w,person.h-waist,person.x,person.waist,person.w,person.h-waist);
+    for(let y=0;y<waist;y+=2) {
+      const h=Math.min(2,waist-y),top=person.y+y;
+      const headFactor=Math.max(0,(person.neck-top)/150);
+      const weight=1-y/waist;
+      const dx=Math.round(sway*weight + tilt*Math.max(0,person.neck-top));
+      const extraNod=(reduced?.matches?0:Math.sin(phase*1.2)*1.6)*Math.min(1,headFactor);
+      const nextHead=Math.max(0,(person.neck-(top+h))/150);
+      const nextNod=(reduced?.matches?0:Math.sin(phase*1.2)*1.6)*Math.min(1,nextHead);
+      const dy=Math.round(person.waist+(y-waist)*scale+extraNod);
+      const end=Math.round(person.waist+(y+h-waist)*scale+nextNod);
+      g.drawImage(person.canvas,0,y,person.w,h,person.x+dx,dy,person.w,Math.max(1,end-dy));
+    }
+    // One restrained glint travels across the actual sunglasses, never the wall.
+    if (!reduced?.matches && (who===0 || who===2)) {
+      const glint=(t+who*1.3)%6;
+      if(glint<.45) {
+        const glasses=who===0?[216,201]:[1171,207];
+        const x=glasses[0]+Math.floor(glint/.45*23)+Math.round(sway*.8);
+        const y=glasses[1]+Math.round((person.waist-glasses[1])*(1-scale));
+        rect(g,x,y,3,7,who===0?'#d7f2ec':'#99efff');
+      }
+    }
+  }
+  function cursor(x,y,color) {
+    for(let row=0;row<7;row++)rect(g,x-5-row*5,y+row*5,10+row*10,5,color);
+    rect(g,x-37,y+35,74,5,color);
   }
   function foreground(t) {
-    g.clearRect(0,0,640,480);
-    // A silkscreened header, rather than a floating HTML card, belongs to this menu art.
-    rect(g,133,15,374,56,P.edge);rect(g,129,19,382,48,P.ink);
-    rect(g,137,15,366,3,P.orange);rect(g,137,66,366,3,P.pink);
-    text(g,'CHOOSE YOUR PLAYER',320,27,3,P.cream,true);
-    text(g,'THREE FRIENDS. ONE LOUD BAND.',320,53,1,P.cyan,true);
-    for(let who=0;who<3;who++){
+    g.clearRect(0,0,W,H);
+    people.forEach((person,i) => drawPerson(person,i,t));
+    for(let who=0;who<3;who++) {
       const active=who===picked;
-      const age=reduced?.matches?0:(t-selectionAt+6)%6;
-      let col=Math.floor(t*4+who)%4,walking=false,dx=0;
-      if(active){
-        if(age<1.65){walking=true;col=Math.floor(age*8)%8;dx=Math.round(Math.sin(age*Math.PI*2/1.65)*9);}
-        else if(age<2.8)col=Math.floor((age-1.65)*5)%2?5:4;
-        else if(age<4.45)col=6+Math.floor((age-2.8)*4)%2;
-        else col=Math.floor(t*4)%4;
-        if(reduced?.matches){col=1;walking=false;dx=0;}
+      const pulse=reduced?.matches?0:Math.floor((Math.sin(t*4)+1)*1.5);
+      cursor(centers[who],1011-(active?pulse:0),active?cream:'#6b6654');
+      if(active) {
+        rect(g,centers[who]-48,1053,96,3,gold);
+        rect(g,centers[who]-48,1053,4,7,gold);
+        rect(g,centers[who]+44,1053,4,7,gold);
       }
-      const x=positions[who]+dx,size=active?174:151;
-      rect(g,x-39,floor,78,5,P.edge);rect(g,x-28,floor+4,56,2,'#2c252b');
-      // Tape crosses and a selected floor stripe stay below the player's feet.
-      rect(g,positions[who]-48,floor+8,96,3,active?P.green:'#714f3c');
-      rect(g,positions[who]-48,floor+6,3,7,active?P.green:'#714f3c');
-      rect(g,positions[who]+45,floor+6,3,7,active?P.green:'#714f3c');
-      sprite(who,col,x,size,walking);
-      const label=active?P.green:P.cream;
-      text(g,names[who],positions[who],370,2,label,true);
-      text(g,roles[who],positions[who],389,1,active?P.cream:'#c2aa91',true);
-      if(active){
-        // This cursor tracks the preview, never moves the actual hit targets.
-        const bob=reduced?.matches?0:Math.floor(t*3)%2*2;
-        rect(g,positions[who]-3,168+bob,6,5,P.orange);
-        rect(g,positions[who]-6,173+bob,12,3,P.orange);
-        rect(g,positions[who]-3,176+bob,6,3,P.orange);
-      }
+      text(names[who]+' / '+roles[who],centers[who],1065,2,active?cream:'#a99e7f');
     }
   }
   function tick(now) {
-    const active=select.classList.contains('active');
-    if(active&&!wasActive){
+    const active=select.classList.contains('active')&&!visibilityPaused;
+    if(active&&!wasActive) {
       choose(Math.max(0,Math.min(2,Number(document.getElementById('actionCanvas')?.dataset.player)||0)));
-      selectionAt=clock;
+      frameNumber=-1;
     }
     if(last!==null&&active)clock+=Math.min(.05,Math.max(0,(now-last)/1000));
     last=now;wasActive=active;
-    if(active&&ready){const t=reduced?.matches?0:clock;background(t);foreground(t);}
-    window.requestAnimationFrame(tick);
+    const frame=Math.floor(clock*30);
+    if(active&&ready&&frame!==frameNumber) {
+      frameNumber=frame;const t=reduced?.matches?0:clock;background(t);foreground(t);
+    }
+    requestAnimationFrame(tick);
   }
-  window.requestAnimationFrame(tick);
+  requestAnimationFrame(tick);
+})();
+
+/* Live performance: venue/lights, musicians, instruments, kit and mic layers. */
+(() => {
+  'use strict';
+  const W=1448,H=1086,assets={},sprites={};
+  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
+  const full=document.createElement('canvas');full.width=W;full.height=H;
+  const fg=full.getContext('2d');fg.imageSmoothingEnabled=false;
+  const venue=document.createElement('canvas');venue.width=1920;venue.height=420;
+  const vg=venue.getContext('2d');vg.imageSmoothingEnabled=false;
+  let ready=false;
+  const paths={
+    drummer:[[50,275],[421,275],[421,950],[50,950]],
+    guitar:[[480,100],[1010,100],[1010,410],[1090,410],[1090,480],[1010,500],[1000,650],[960,1065],[480,1065]],
+    bass:[[1010,165],[1448,165],[1448,975],[975,975],[1000,650],[1010,500],[1090,480],[1090,410],[1010,410]],
+    drumLeft:[[79,535],[105,535],[146,559],[188,582],[213,585],[232,605],[226,624],[205,627],[182,612],[143,602],[111,586],[85,574]],
+    drumRight:[[280,516],[307,514],[326,528],[335,534],[389,478],[404,479],[405,490],[350,551],[348,566],[329,581],[306,580],[290,562]],
+    guitarHand:[[644,551],[675,553],[694,564],[710,582],[707,604],[690,619],[669,619],[647,607],[633,588]],
+    bassHand:[[1082,425],[1107,426],[1121,445],[1134,459],[1145,476],[1142,495],[1128,502],[1111,490],[1093,474],[1082,452]]
+  };
+  function shape(ctx,points){ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();}
+  function layer(points,source){
+    const c=document.createElement('canvas');c.width=W;c.height=H;
+    const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.save();shape(x,points);x.clip();x.drawImage(source,0,0,W,H);x.restore();return c;
+  }
+  function clearShape(canvas,points){const c=canvas.getContext('2d');c.save();c.globalCompositeOperation='destination-out';shape(c,points);c.fill();c.restore();}
+  function makeVenue(){
+    vg.fillStyle='#08090c';vg.fillRect(0,0,1920,420);
+    vg.drawImage(assets.plate,0,96,W,867,0,28,640,370);
+    // Extend the real venue with a brick-wall and rug layer instead of repeating
+    // the whole framed illustration as the player runs through the room.
+    for(let x=640;x<1920;x+=320){
+      vg.drawImage(assets.plate,845,230,450,540,x,28,320,250);
+      vg.drawImage(assets.plate,70,790,1170,170,x,278,320,120);
+      vg.fillStyle=x%640?'#191116':'#1a1519';vg.fillRect(x+80,76,3,195);
+      vg.fillStyle='#7b3730';vg.fillRect(x+40,259,210,4);
+    }
+  }
+  function prepare(){
+    for(const key of ['drummer','guitar','bass'])sprites[key]=layer(paths[key],assets.band);
+    for(const key of ['drumLeft','drumRight','guitarHand','bassHand'])sprites[key]=layer(paths[key],assets.band);
+    clearShape(sprites.drummer,paths.drumLeft);clearShape(sprites.drummer,paths.drumRight);
+    clearShape(sprites.guitar,paths.guitarHand);clearShape(sprites.bass,paths.bassHand);
+    // Replace the tiny areas hidden by picking hands with the guitar underneath.
+    const gc=sprites.guitar.getContext('2d');gc.save();gc.globalCompositeOperation='destination-over';shape(gc,paths.guitarHand);gc.fillStyle='#f5e0a2';gc.fill();gc.restore();
+    const bc=sprites.bass.getContext('2d');bc.save();bc.globalCompositeOperation='destination-over';shape(bc,paths.bassHand);bc.fillStyle='#17131f';bc.fill();bc.restore();
+    sprites.kitBody=document.createElement('canvas');sprites.kitBody.width=W;sprites.kitBody.height=H;
+    const k=sprites.kitBody.getContext('2d');k.imageSmoothingEnabled=false;k.drawImage(assets.kit,0,0,W,H);
+    for(const [x,y,w,h] of [[0,440,266,105],[499,340,245,116],[525,482,205,75]])k.clearRect(x,y,w,h);
+    // Only the mic and its stand are taken from the existing live artwork.
+    sprites.mic=layer([[767,318],[787,323],[809,340],[842,357],[861,381],[870,413],[886,961],[860,961],[849,423],[841,400],[826,379],[793,359],[770,344]],assets.mic);
+    const mc=sprites.mic.getContext('2d'),pixels=mc.getImageData(0,0,W,H);
+    for(let i=0;i<pixels.data.length;i+=4){const r=pixels.data[i],g=pixels.data[i+1],b=pixels.data[i+2];if(Math.max(r,g,b)-Math.min(r,g,b)>65)pixels.data[i+3]=0;}
+    mc.putImageData(pixels,0,0);
+    makeVenue();ready=true;
+  }
+  for(const [key,file] of Object.entries({plate:'live-wall-v4.png',band:'live-band-v4.png',kit:'live-drums-v4.png',mic:'live.webp'})){
+    const im=new Image();assets[key]=im;
+    im.onload=()=>{if(Object.keys(assets).length===4&&Object.values(assets).every(a=>a.complete&&a.naturalWidth)&&!ready)prepare();};
+    im.src='assets/'+file;
+  }
+  function rotateLayer(image,x,y,angle){fg.save();fg.translate(x,y);fg.rotate(angle);fg.drawImage(image,-x,-y);fg.restore();}
+  function performer(who,t,scaleAll){
+    const tempo=t*Math.PI*2/.6;
+    const phase=who===2?.7:who===1?0:1.4;
+    const sway=reduced?.matches?0:Math.sin(tempo/2+phase);
+    const scale=who===2?.90:who===1?.83:.94;
+    const sx=who===2?70:who===1?511:1024;
+    const sy=who===2?300:who===1?127:185;
+    const dx=who===2?80:who===1?552:1038;
+    const dy=who===2?355:who===1?182:235;
+    const key=who===2?'drummer':who===1?'guitar':'bass';
+    const waist=who===2?630:who===1?675:650;
+    fg.save();
+    const center=who===2?240:who===1?790:1195;
+    fg.translate(center,940);fg.scale(scaleAll,scaleAll);fg.translate(-center,-940);
+    fg.translate(dx,dy);fg.scale(scale,scale);fg.translate(-sx,-sy);
+    // Seated lower body and planted shoes stay still; torso rocks about the hips.
+    fg.save();fg.beginPath();fg.rect(0,waist,W,H-waist);fg.clip();fg.drawImage(sprites[key],0,0);fg.restore();
+    fg.save();fg.beginPath();fg.rect(0,0,W,waist);fg.clip();
+    fg.translate(center,waist);fg.rotate(sway*(who===2?.012:.025));fg.translate(-center,-waist);
+    fg.drawImage(sprites[key],0,0);
+    if(who===2){
+      rotateLayer(sprites.drumLeft,105,550,reduced?.matches?0:Math.sin(tempo)*.27);
+      rotateLayer(sprites.drumRight,302,536,reduced?.matches?0:Math.sin(tempo+Math.PI)*.30);
+    }else if(who===1){rotateLayer(sprites.guitarHand,646,564,reduced?.matches?0:Math.sin(tempo*2)*.22);}
+    else{rotateLayer(sprites.bassHand,1094,438,reduced?.matches?0:Math.sin(tempo)*.18);}
+    fg.restore();fg.restore();
+  }
+  function kit(t,scaleAll,playing){
+    fg.save();fg.translate(240,940);fg.scale(scaleAll,scaleAll);fg.translate(-240,-940);
+    fg.translate(0,456);fg.scale(.70,.77);fg.translate(-10,-348);
+    fg.drawImage(sprites.kitBody,0,0);
+    const shake=reduced?.matches||!playing?0:Math.sin(t*Math.PI*2/.6)*Math.exp(-((t%.6)*5));
+    for(const [x,y,w,h,px,py,direction] of [[0,440,266,105,130,532,1],[499,340,245,116,626,443,-1],[525,482,205,75,618,546,1]]){
+      fg.save();fg.translate(px,py);fg.rotate(shake*.025*direction);fg.drawImage(assets.kit,x,y,w,h,x-px,y-py,w,h);fg.restore();
+    }
+    if(playing&&!reduced?.matches){
+      const hit=Math.max(0,1-(t%.6)/.12);
+      fg.fillStyle=`rgba(255,225,143,${hit*.10})`;fg.fillRect(357,760,151,100);
+    }
+    fg.restore();
+  }
+  function lights(bg,t,camera){
+    const bulbs=[[102,137,'#6aff30'],[585,136,'#ffad2f'],[899,137,'#ff852c'],[1141,136,'#ff6d29'],[1292,137,'#56ed23']];
+    bg.save();
+    for(let i=0;i<bulbs.length;i++){
+      const [nx,ny,color]=bulbs[i],x=nx/W*640-camera*.20,y=28+(ny-96)/867*370;
+      const beat=reduced?.matches?.45:.40+.35*(Math.sin(t*Math.PI*2/.6-i*.9)*.5+.5);
+      const sway=reduced?.matches?0:Math.sin(t*.8+i)*20;
+      bg.fillStyle=color;bg.globalAlpha=beat*.08;
+      bg.beginPath();bg.moveTo(x-3,y+3);bg.lineTo(x-45+sway,290);bg.lineTo(x+45+sway,290);bg.lineTo(x+3,y+3);bg.closePath();bg.fill();
+      bg.globalAlpha=beat*.6;bg.fillRect(Math.round(x-5),Math.round(y-4),10,8);
+      bg.globalAlpha=beat*.11;bg.fillRect(Math.round(x-12),Math.round(y-9),24,18);
+    }
+    bg.restore();
+  }
+  window.CGLiveStage={
+    ready:()=>ready,
+    draw({g,bg,t,camera=0,exclude=-1,performance=false}){
+      if(!ready)return false;
+      const cam=performance?0:Math.max(0,Math.min(1280,camera));
+      bg.clearRect(0,0,640,420);bg.drawImage(venue,cam,0,640,420,0,0,640,420);lights(bg,t,cam);
+      fg.clearRect(0,0,W,H);
+      const scaleAll=performance?.58:.46;
+      // Drummer first, then the single kit, then front-of-stage strings and mic.
+      if(exclude!==2)performer(2,t,scaleAll);
+      kit(t,scaleAll,exclude!==2);
+      if(exclude!==0)performer(0,t,scaleAll);
+      if(exclude!==1)performer(1,t,scaleAll);
+      fg.save();fg.translate(790,940);fg.scale(scaleAll,scaleAll);fg.translate(-790,-940);fg.drawImage(sprites.mic,0,0);fg.restore();
+      g.save();g.translate(-cam,performance?0:-54);
+      g.drawImage(full,0,96,W,867,0,28,640,370);g.restore();
+      return true;
+    }
+  };
 })();
