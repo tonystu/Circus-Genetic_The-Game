@@ -1,9 +1,9 @@
 (()=>{const c=document.getElementById('cdCanvas'),g=c.getContext('2d'),back=document.getElementById('cdBackground'),b=back.getContext('2d'),screen=document.getElementById('chapters'),art=new Image();
 art.src=window.CG_ASSETS?.['assets/cd-bin.png']||'assets/cd-bin.png';
-const coverFiles=['assets/chapter-practice.png','assets/chapter-soundcheck.png','assets/chapter-show.png','assets/chapter-amp.png','assets/chapter-groupies.png','assets/chapter-party.png','assets/chapter-boss.png'];
+const coverFiles=['assets/chapter-practice.png','assets/chapter-soundcheck.png','assets/chapter-show.png','assets/chapter-amp.png','assets/roulette-faces-v5.png','assets/chapter-party.png','assets/chapter-boss.png'];
 const covers=coverFiles.map(file=>{const im=new Image();im.src=window.CG_ASSETS?.[file]||file;return im});
 const coverColors=['#f1a545','#5bdae2','#f16cba','#71aaff','#ff789b','#b5df5d','#d399ff'];
-const chapters=[['practice','GARAGE PRACTICE'],['soundcheck','SOUNDCHECK'],['show','THE SHOW'],['amp','AMP EMERGENCY'],['groupies','GROUPIE SCORECARDS'],['party','AFTERPARTY'],['boss','BATTLE OF THE BANDS']],N=chapters.length,names=['MATT / BASS','BRICE / GUITAR','TONY / DRUMS'];let pick=0,slide=0,t=0,last=0,role=0,wasActive=false;
+const chapters=[['practice','GARAGE PRACTICE'],['soundcheck','SOUNDCHECK'],['show','THE SHOW'],['amp','AMP EMERGENCY'],['groupies','GROUPIE ROULETTE'],['party','AFTERPARTY'],['boss','BATTLE OF THE BANDS']],N=chapters.length,names=['MATT / BASS','BRICE / GUITAR','TONY / DRUMS'];let pick=0,slide=0,t=0,last=0,role=0,wasActive=false;
 const rect=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(Math.round(x),Math.round(y),w,h)};function text(s,x,y,k=1,col='#f0dfbc',align='left'){s=String(s).toUpperCase();if(align==='center')x-=s.length*6*k/2;if(align==='right')x-=s.length*6*k;for(const ch of s){const rows=(window.CG_FONT?.[ch]||'00000/00000/00000/00000/00000/00000/00000').split('/');rows.forEach((r,j)=>[...r].forEach((v,i)=>{if(v==='1')rect(x+i*k,y+j*k,k,k,col)}));x+=6*k}}
 const loaded=im=>im.complete&&im.naturalWidth;
 const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches===true;

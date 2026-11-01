@@ -1,0 +1,83 @@
+CIRCUS GENETIC — CONTINUOUS LIVE SHOW + GROUPIE ROULETTE UPDATE
+
+WHAT IS IN THIS UPDATE
+
+LIVE SHOW
+One continuous 2,400-unit venue: stage, stage steps, crowd floor and sound desk,
+bar, then exit door. The background is one unique panorama; it does not tile or
+repeat the stage. Animated patrons occupy the crowd area behind the fighters.
+Clear the stage wave, move right into the crowd, clear that wave and reach the
+exit. After the amp run, clear the encore enemies through the venue again.
+
+Your normal stage fighter is 168 game pixels high, at least as tall as the
+performing guitarists. The existing walking, striking and weapon animations
+scale with the fighter. Tony still fights with sticks only. The selected
+musician is absent from their stage station during combat.
+
+A flashing pixel sign reads KICK THE DRUNK FANS OFF STAGE at round start.
+Reduced-motion mode keeps the sign steady.
+
+THE AMP BLEW
+The broken smoking amp is visible onstage. Press E to leave for the blue van.
+Collect and return the replacement as before. Choosing the amp chapter now
+also begins at the smoking amp, so the event is visible before the van run.
+
+GROUPIE ROULETTE
+The rating minigame and its labels have been removed from this edition.
+Choose three distinct faces from nine. Your three choices load into a slot
+machine. Each reel spins among those three faces and stops separately.
+
+Three matching faces: +10,000 bonus points.
+Exactly one hidden face among the nine carries giant power. If you included
+her in your three picks, you get the giant prize after the spin, even if the
+reels do not match. You do not have to land her on the payline.
+
+There is one spin per run and no point cost. The jackpot and power are separate
+awards. After the result, continue into the giant encore or the afterparty.
+The camera zooms out for giant stage combat to show the 3x character.
+
+CONTROLS
+Choose faces: click, or 1-9, or arrows and E.
+Remove a pick before all three are loaded: click it again or its number.
+Change loaded picks: Backspace, or click a loaded face.
+Pull lever: Space, E, Enter, or click the lever.
+Continue after the result: E, Enter, Space, or click the lower result area.
+
+UPLOAD TO YOUR EXISTING GITHUB GAME
+1. Extract Circus-Genetic-Live-Show-and-Roulette-Update.zip.
+2. Open your existing game repository on GitHub, on the Code tab.
+3. Stay at the top level where index.html, game.html, assets/ and scripts/ live.
+4. Choose Add file > Upload files.
+5. Drag ALL CONTENTS of the extracted update folder into the upload area,
+   preserving the assets, scripts and website folders. Do not upload the ZIP
+   or put an extra outer update folder around its contents.
+6. Commit changes. Example message: Add continuous live venue and Groupie Roulette
+7. Wait for GitHub Pages deployment. Open the live Pages URL and press Ctrl+F5.
+
+The included index.html is the updated Circus Genetic branded homepage.
+The included game.html runs the updated game. The homepage Play buttons point
+to game.html. These match the branded homepage supplied in the previous update.
+The README, handbook, CD chapter name, homepage chapter preview and game guide
+all use Groupie Roulette and explain its new rules.
+
+If uploading in separate commits, upload assets FIRST, then scripts and website,
+then the HTML and documentation files. Keep all existing unrelated files.
+
+Do not delete or replace entire folders. These uploaded files merge into your
+existing folders, replacing matching files and adding the new images. Your
+existing music, styles.css, remaining game scripts and other assets are needed.
+Do not create assets/assets or scripts/scripts.
+
+This package also retains the previous animated Player Select and layered live
+band assets, so it includes both artwork fixes from the last update.
+
+QUICK CHECK AFTER UPLOADING
+- Chapter 3, The Show: the round-start sign appears, the selected fighter is
+  full-sized, and the room changes as you move through the crowd to the door.
+- Chapter 4, Amp Emergency: the smoking amp is onstage. Press E to start the run.
+- Chapter 5, Groupie Roulette: nine unique faces, three distinct picks, three
+  spinning reels, one jackpot and an independent hidden-power award.
+- Start New Band: the graffiti-wall animated Player Select screen remains.
+
+No purchase, wallet, build command, API key or dependency install is needed.
+All score and roulette prizes are in-game only.

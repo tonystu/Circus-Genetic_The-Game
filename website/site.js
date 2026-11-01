@@ -10,7 +10,7 @@
     {name:'SOUND CHECK',type:'RHYTHM / FIX THE MIX',art:'soundcheck',alt:'8-bit soundcheck chapter artwork',copy:"Play your part, then get the channels into the green. The sound guy has one finger in his ear and a lot of opinions."},
     {name:'THE SHOW',type:'LIVE RHYTHM / STAGE COMBAT',art:'show',alt:'8-bit live-show chapter artwork',copy:'Hit your cues and hold the stage. Bad promoters, lousy opening acts, pompous headliners, and beer-spilling fans are all on the bill.'},
     {name:'THE AMP BLEW',type:'SIDE-SCROLLING / AMP RESCUE',art:'amp',alt:'8-bit amp emergency chapter artwork',copy:'Your amp is toast. Get outside, reach the blue van, collect a replacement, and fight your way back to the venue door.'},
-    {name:'GROUPIE SCORECARD',type:'CHANCE / GIANT POWER',art:'groupies',alt:'8-bit groupie scorecard chapter artwork',copy:'Rate the scorecards and make your choice. One random lucky pick means three times the size and one-hit attacks. Subtle? Absolutely not.'},
+    {name:'GROUPIE ROULETTE',type:'SLOT MACHINE / GIANT POWER',art:'roulette',alt:'Nine 8-bit Groupie Roulette faces',copy:'Pick three of nine faces and pull the lever. Match all three reels for 10,000 points. Include the one hidden power face in your picks and giant mode is yours, matched reels or not.'},
     {name:'AFTER PARTY',type:"BEER PONG / BLOWIN' O'S",art:'party',alt:'8-bit afterparty chapter artwork',copy:"Time the power and direction in Beer Pong, then aim your breath in Blowin' O's — Smoke Ring Olympics. The band is making memories. Allegedly."},
     {name:'BATTLE OF THE BANDS',type:'FINAL BOSS / 30 RIVAL MUSICIANS',art:'boss',alt:'8-bit Battle of the Bands chapter artwork',copy:'A TV ad becomes a dive-bar free-for-all. Switch bandmates with X, outsmart thirty rivals, and be the last band standing. Lose this one and you are out of the band.'}
   ];
@@ -33,7 +33,7 @@
       const i = Number(button.dataset.chapter), chapter = chapters[i];
       document.querySelectorAll('[data-chapter]').forEach(b => { const on = b === button; b.classList.toggle('selected',on); b.setAttribute('aria-pressed',String(on)); });
       const art = byId('chapter-art');
-      art.src = `assets/chapter-${chapter.art}.webp`;
+      art.src = chapter.art === 'roulette' ? 'assets/roulette-faces-v5.png' : `assets/chapter-${chapter.art}.webp`;
       art.alt = chapter.alt;
       setText('chapter-counter',`TRACK 0${i + 1} / 07`);
       setText('chapter-type',chapter.type);

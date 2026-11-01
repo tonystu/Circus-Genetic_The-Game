@@ -234,7 +234,7 @@
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
   const full=document.createElement('canvas');full.width=W;full.height=H;
   const fg=full.getContext('2d');fg.imageSmoothingEnabled=false;
-  const venue=document.createElement('canvas');venue.width=1920;venue.height=420;
+  const venue=document.createElement('canvas');venue.width=2400;venue.height=420;
   const vg=venue.getContext('2d');vg.imageSmoothingEnabled=false;
   let ready=false;
   const paths={
@@ -252,18 +252,7 @@
     const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.save();shape(x,points);x.clip();x.drawImage(source,0,0,W,H);x.restore();return c;
   }
   function clearShape(canvas,points){const c=canvas.getContext('2d');c.save();c.globalCompositeOperation='destination-out';shape(c,points);c.fill();c.restore();}
-  function makeVenue(){
-    vg.fillStyle='#08090c';vg.fillRect(0,0,1920,420);
-    vg.drawImage(assets.plate,0,96,W,867,0,28,640,370);
-    // Extend the real venue with a brick-wall and rug layer instead of repeating
-    // the whole framed illustration as the player runs through the room.
-    for(let x=640;x<1920;x+=320){
-      vg.drawImage(assets.plate,845,230,450,540,x,28,320,250);
-      vg.drawImage(assets.plate,70,790,1170,170,x,278,320,120);
-      vg.fillStyle=x%640?'#191116':'#1a1519';vg.fillRect(x+80,76,3,195);
-      vg.fillStyle='#7b3730';vg.fillRect(x+40,259,210,4);
-    }
-  }
+  function makeVenue(){vg.fillStyle='#08090c';vg.fillRect(0,0,2400,420);vg.drawImage(assets.panorama,0,0,assets.panorama.naturalWidth,assets.panorama.naturalHeight,0,28,2400,370);}
   function prepare(){
     for(const key of ['drummer','guitar','bass'])sprites[key]=layer(paths[key],assets.band);
     for(const key of ['drumLeft','drumRight','guitarHand','bassHand'])sprites[key]=layer(paths[key],assets.band);
@@ -282,9 +271,9 @@
     mc.putImageData(pixels,0,0);
     makeVenue();ready=true;
   }
-  for(const [key,file] of Object.entries({plate:'live-wall-v4.png',band:'live-band-v4.png',kit:'live-drums-v4.png',mic:'live.webp'})){
+  for(const [key,file] of Object.entries({plate:'live-wall-v4.png',band:'live-band-v4.png',kit:'live-drums-v4.png',mic:'live.webp',panorama:'live-venue-v5.png'})){
     const im=new Image();assets[key]=im;
-    im.onload=()=>{if(Object.keys(assets).length===4&&Object.values(assets).every(a=>a.complete&&a.naturalWidth)&&!ready)prepare();};
+    im.onload=()=>{if(Object.keys(assets).length===5&&Object.values(assets).every(a=>a.complete&&a.naturalWidth)&&!ready)prepare();};
     im.src='assets/'+file;
   }
   function rotateLayer(image,x,y,angle){fg.save();fg.translate(x,y);fg.rotate(angle);fg.drawImage(image,-x,-y);fg.restore();}
@@ -329,26 +318,16 @@
     }
     fg.restore();
   }
-  function lights(bg,t,camera){
-    const bulbs=[[102,137,'#6aff30'],[585,136,'#ffad2f'],[899,137,'#ff852c'],[1141,136,'#ff6d29'],[1292,137,'#56ed23']];
-    bg.save();
-    for(let i=0;i<bulbs.length;i++){
-      const [nx,ny,color]=bulbs[i],x=nx/W*640-camera*.20,y=28+(ny-96)/867*370;
-      const beat=reduced?.matches?.45:.40+.35*(Math.sin(t*Math.PI*2/.6-i*.9)*.5+.5);
-      const sway=reduced?.matches?0:Math.sin(t*.8+i)*20;
-      bg.fillStyle=color;bg.globalAlpha=beat*.08;
-      bg.beginPath();bg.moveTo(x-3,y+3);bg.lineTo(x-45+sway,290);bg.lineTo(x+45+sway,290);bg.lineTo(x+3,y+3);bg.closePath();bg.fill();
-      bg.globalAlpha=beat*.6;bg.fillRect(Math.round(x-5),Math.round(y-4),10,8);
-      bg.globalAlpha=beat*.11;bg.fillRect(Math.round(x-12),Math.round(y-9),24,18);
-    }
-    bg.restore();
+  function lights(bg,t,camera,performance){
+    const lamps=performance?[[102/W*640,45,'#6aff30'],[585/W*640,45,'#ffad2f'],[899/W*640,45,'#ff852c'],[1141/W*640,45,'#ff6d29'],[1292/W*640,45,'#56ed23']]:[[80,66,'#6aff30'],[338,70,'#ffad2f'],[512,75,'#ff852c'],[636,78,'#ff6d29'],[718,81,'#56ed23'],[962,88,'#ffae43'],[1348,91,'#ffae43'],[1658,113,'#ffae43'],[1900,113,'#ffae43'],[2110,109,'#ffae43']];
+    bg.save();lamps.forEach(([worldX,y,color],i)=>{const x=worldX-camera;if(x< -65||x>705)return;const beat=reduced?.matches?.45:.40+.35*(Math.sin(t*Math.PI*2/.6-i*.9)*.5+.5),sway=reduced?.matches?0:Math.sin(t*.8+i)*20;bg.fillStyle=color;bg.globalAlpha=beat*.07;bg.beginPath();bg.moveTo(x-3,y+3);bg.lineTo(x-45+sway,310);bg.lineTo(x+45+sway,310);bg.lineTo(x+3,y+3);bg.closePath();bg.fill();bg.globalAlpha=beat*.5;bg.fillRect(Math.round(x-5),Math.round(y-4),10,8);});bg.restore();
   }
   window.CGLiveStage={
     ready:()=>ready,
-    draw({g,bg,t,camera=0,exclude=-1,performance=false}){
+    draw({g,bg,t,camera=0,exclude=-1,performance=false,zoom=1}){
       if(!ready)return false;
-      const cam=performance?0:Math.max(0,Math.min(1280,camera));
-      bg.clearRect(0,0,640,420);bg.drawImage(venue,cam,0,640,420,0,0,640,420);lights(bg,t,cam);
+      const cam=performance?0:Math.max(0,Math.min(1760,camera));
+      bg.clearRect(0,0,640,420);bg.fillStyle='#08090c';bg.fillRect(0,0,640,420);bg.save();if(zoom!==1){bg.translate(320,398);bg.scale(zoom,zoom);bg.translate(-320,-398);}if(performance)bg.drawImage(assets.plate,0,96,W,867,0,28,640,370);else{const pad=320/zoom-320;bg.drawImage(venue,cam-pad,0,640+pad*2,420,-pad,0,640+pad*2,420);}lights(bg,t,cam,performance);bg.restore();
       fg.clearRect(0,0,W,H);
       const scaleAll=performance?.58:.46;
       // Drummer first, then the single kit, then front-of-stage strings and mic.
@@ -357,9 +336,83 @@
       if(exclude!==0)performer(0,t,scaleAll);
       if(exclude!==1)performer(1,t,scaleAll);
       fg.save();fg.translate(790,940);fg.scale(scaleAll,scaleAll);fg.translate(-790,-940);fg.drawImage(sprites.mic,0,0);fg.restore();
-      g.save();g.translate(-cam,performance?0:-54);
+      g.save();g.translate(-cam,performance?0:-100);
       g.drawImage(full,0,96,W,867,0,28,640,370);g.restore();
       return true;
     }
   };
+})();
+
+/* Groupie Roulette: one run, three distinct picks, independent reel results. */
+(() => {
+ 'use strict';
+ const names=['ROXY','JULES','MORGAN','NINA','RAE','ALEX','SKYE','JADE','BILLIE'];
+ const pick=(rng,n)=>Math.max(0,Math.min(n-1,Math.floor(rng()*n)));
+ function create(rng=Math.random){return{phase:'pick',cursor:0,picks:[],lucky:pick(rng,9),rng,time:0,spinAge:0,results:null,jackpot:false,power:false,claimed:false,reels:[],lastStop:0};}
+ function toggle(s,i){if(s.phase!=='pick'||i<0||i>8)return false;const at=s.picks.indexOf(i);if(at>=0)s.picks.splice(at,1);else if(s.picks.length<3)s.picks.push(i);s.cursor=i;if(s.picks.length===3)s.phase='loaded';return true;}
+ function edit(s,index=2){if(s.phase!=='loaded')return false;s.picks.splice(Math.max(0,Math.min(2,index)),1);s.phase='pick';return true;}
+ function spin(s){if(s.phase!=='loaded'||s.picks.length!==3||new Set(s.picks).size!==3)return false;s.results=Array.from({length:3},()=>s.picks[pick(s.rng,3)]);s.jackpot=s.results.every(i=>i===s.results[0]);s.power=s.picks.includes(s.lucky);s.reels=s.results.map((id,i)=>({start:i,turns:(9+i*3)+(s.picks.indexOf(id)-i+3)%3,duration:1.8+i*.65,position:0,stopped:false}));s.phase='spin';s.spinAge=0;return true;}
+ function update(s,dt){s.time+=dt;if(s.phase!=='spin')return;s.spinAge+=dt;for(const r of s.reels){const p=Math.min(1,s.spinAge/r.duration);r.position=r.turns*(1-(1-p)**3);r.stopped=p===1;if(r.stopped)r.position=r.turns;}if(s.reels.every(r=>r.stopped))s.phase='result';}
+ function claim(s){if(s.phase!=='result'||s.claimed)return null;s.claimed=true;return{points:s.jackpot?10000:0,power:s.power,lucky:s.lucky,jackpot:s.jackpot};}
+ function key(s,key){if(s.phase==='pick'){if(/^[1-9]$/.test(key))return toggle(s,+key-1);if(['arrowleft','a'].includes(key))s.cursor=(s.cursor+8)%9;if(['arrowright','d'].includes(key))s.cursor=(s.cursor+1)%9;if(['arrowup','w'].includes(key))s.cursor=(s.cursor+6)%9;if(['arrowdown','s'].includes(key))s.cursor=(s.cursor+3)%9;if(['e','enter',' '].includes(key))return toggle(s,s.cursor);}else if(s.phase==='loaded'){if(key==='backspace')return edit(s);if(['e','enter',' '].includes(key))return spin(s);}return false;}
+ const api={names,create,toggle,edit,spin,update,claim,key};
+ if(typeof module!=='undefined'&&module.exports)module.exports=api;
+ if(typeof window!=='undefined')window.CGGroupieRoulette=api;
+})();
+
+/* All roulette interaction is painted into the game canvas in pixel art. */
+(() => {
+ 'use strict';
+ const api=window.CGGroupieRoulette,faces=new Image();faces.src='assets/roulette-faces-v5.png';
+ function portrait(g,id,x,y,size){if(faces.complete&&faces.naturalWidth){const w=faces.naturalWidth/3,h=faces.naturalHeight/3;g.drawImage(faces,(id%3)*w,Math.floor(id/3)*h,w,h,x,y,size,size);}else{g.fillStyle=['#6d3448','#48477d','#406c66'][id%3];g.fillRect(x,y,size,size);}}
+ function draw(s,{g,bg,txt,box}){
+  bg.clearRect(0,0,640,420);bg.fillStyle='#1a1225';bg.fillRect(0,28,640,370);
+  // Party floor and lamps animate on the independent background canvas.
+  for(let x=12;x<640;x+=30){bg.fillStyle=Math.floor(s.time*3+x)%3?'#ee9e56':'#695377';bg.fillRect(x,39,6,6);}
+  bg.fillStyle='#4e3540';bg.fillRect(0,378,640,20);for(let x=0;x<640;x+=42){bg.fillStyle='#785260';bg.fillRect(x,381,30,2);}
+  txt('GROUPIE ROULETTE',320,55,3,'#f4e4bd','center');
+  if(s.phase==='pick'){
+   txt('PICK 3 OF 9 / ONE HIDES GIANT POWER',320,84,1,'#b6da67','center');
+   for(let i=0;i<9;i++){
+    const x=24+(i%3)*144,y=105+Math.floor(i/3)*89,on=s.picks.includes(i),focus=s.cursor===i;
+    box(x,y,135,81,on?'#9cae52':focus?'#f4e4bd':'#665277');box(x+3,y+3,129,75,on?'#343d29':'#221b30');
+    portrait(g,i,x+6,y+6,65);txt(String(i+1),x+83,y+14,2,on?'#b6da67':'#ed873c');txt(api.names[i],x+78,y+49,1,'#f4e4bd');
+    if(on)txt('IN',x+86,y+65,1,'#b6da67');
+   }
+   box(470,105,146,263,'#3d2d46');box(475,110,136,253,'#0d0c15');txt('YOUR THREE',543,121,1,'#f4e4bd','center');
+   for(let i=0;i<3;i++){const y=144+i*67;box(490,y,106,58,'#3a3044');if(s.picks[i]!==undefined){portrait(g,s.picks[i],491,y+1,55);txt(api.names[s.picks[i]],552,y+27,1,'#f4e4bd');}else txt('?',543,y+22,2,'#776b7d','center');}
+   txt('1-9 OR ARROWS + E',320,389,1,'#f4e4bd','center');return;
+  }
+  txt('YOUR PICKS',320,87,1,'#b6da67','center');
+  for(let i=0;i<3;i++){portrait(g,s.picks[i],199+i*72,101,48);if(s.phase==='loaded')box(199+i*72,149,48,2,'#ed873c');}
+  box(91,162,448,215,'#0b0911');box(96,166,438,205,'#e29d4e');box(103,173,424,191,'#37273d');
+  for(let i=0;i<3;i++){
+   const x=123+i*130,y=190;box(x-5,y-5,111,129,'#f4e4bd');box(x-2,y-2,105,123,'#0b0911');
+   g.save();g.beginPath();g.rect(x,y,101,101);g.clip();
+   if(s.phase==='spin'){
+    const r=s.reels[i],base=Math.floor(r.position),frac=r.position-base;
+    for(let n=-1;n<=1;n++){const id=s.picks[(r.start+base+n+3000)%3];portrait(g,id,x,y+Math.round((n-frac)*101),101);}
+   }else portrait(g,s.phase==='result'?s.results[i]:s.picks[i],x,y,101);
+   g.restore();box(x-5,y+96,111,2,'#ed873c');
+   if(s.phase==='result')txt(api.names[s.results[i]],x+50,y+109,1,'#f4e4bd','center');
+  }
+  // Mechanical lever: handle moves down during the spin and springs back.
+  const leverY=s.phase==='spin'?267:202;box(537,238,23,18,'#7b677b');box(555,leverY,7,248-leverY,'#d0bec2');box(548,leverY-10,21,20,'#e66a45');box(552,leverY-7,7,5,'#ffcc78');
+  for(let i=0;i<14;i++)box(111+i*29,177,4,4,Math.floor(s.time*6+i)%3?'#fff0ba':'#8d6944');
+  if(s.phase==='loaded'){txt('PULL THE LEVER',320,333,2,'#b6da67','center');txt('SPACE / E / ENTER   BACKSPACE: CHANGE PICKS',320,354,1,'#f4e4bd','center');}
+  else if(s.phase==='spin'){txt('LET IT ROLL...',320,333,2,'#ed873c','center');txt('THREE MATCHING FACES = 10,000 POINTS',320,355,1,'#f4e4bd','center');}
+  else{
+   const flash=Math.floor(s.time*3)%2===0;
+   txt(s.jackpot?'JACKPOT! +10,000':'NO MATCH / KEEP THE NOISE',320,327,s.jackpot?2:1,s.jackpot&&flash?'#b6da67':'#f4e4bd','center');
+   txt(s.power?'BONUS: GIANT POWER!':'NO GIANT BONUS THIS SPIN',320,347,1,s.power?'#b6da67':'#baa6b8','center');
+   txt(s.power?'YOUR PICKS INCLUDED '+api.names[s.lucky]:'ONE HIDDEN FACE HAD THE POWER',320,365,1,'#f4e4bd','center');
+  }
+  txt(s.phase==='result'?'E / ENTER / SPACE: CONTINUE':s.phase==='loaded'?'CLICK A LOADED FACE TO CHANGE IT':'REELS STOP ONE BY ONE',320,389,1,'#f4e4bd','center');
+ }
+ function pointer(s,x,y){
+  if(s.phase==='pick'){const col=Math.floor((x-24)/144),row=Math.floor((y-105)/89);if(col>=0&&col<3&&row>=0&&row<3&&x<24+col*144+135&&y<105+row*89+81)return api.toggle(s,row*3+col);}
+  else if(s.phase==='loaded'){if(y>=101&&y<=150&&x>=199&&x<199+3*72)return api.edit(s,Math.floor((x-199)/72));if((x>=531&&x<=583&&y>=178&&y<=303)||(x>=106&&x<=526&&y>=321&&y<=371))return api.spin(s);}
+  return false;
+ }
+ api.draw=draw;api.pointer=pointer;
 })();

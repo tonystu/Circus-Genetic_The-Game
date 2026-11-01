@@ -55,13 +55,17 @@ Use **Left/Right** to select a channel, **Up/Down** to adjust its gain and **E**
 
 ## Amp rescue
 
-Run to the blue van and press **E** nearby to collect the spare amp. Return to the venue door and press **E** to deliver it.
+The smoking blown amp first appears on stage. Press **E** to leave for the van run. Run to the blue van and press **E** nearby to collect the spare amp. Return to the venue door and press **E** to deliver it.
 
-## Groupie scorecards
+## Groupie Roulette
 
-Use **Left/Right** or **1–5** to set a rating, then **E** to save it. After rating everyone, use **Left/Right** or **1–3** to make one final choice and confirm with **E**.
+Choose three distinct faces from the nine-person grid. Use **1–9**, or move the cursor with the **arrows** and press **E**. You can also click a portrait. Your three faces load into the slot machine.
 
-The lucky choice is randomized each run. Higher star ratings do not guarantee it. A lucky pick grants **3× size and one-hit attacks**.
+Press **Space**, **E** or **Enter**, or click the lever to spin. **Backspace** lets you change a pick before spinning; you can also click a loaded face to remove it.
+
+Each reel spins among your three selected faces and stops independently. Three matching faces award **10,000 bonus points**. Exactly one of the nine portraits has hidden giant power. If she is among your selected three, you receive **3× growth and one-hit attacks after the spin**, even when the reels do not match. The giant prize depends on your selected pool, not on which faces stop on the payline.
+
+After the result, press **E**, **Enter** or **Space** to continue. There is one spin per run. A nonmatch still lets you continue to the afterparty; a giant prize sends you through the power-up encore first.
 
 ## Beer Pong
 
@@ -79,11 +83,11 @@ Use **Up/Down** to adjust the smoke-ring angle. Press **Space** when the angle a
 
 2. **Soundcheck:** play your part, then fix the mix while the sound guy listens.
 
-3. **The Show:** perform and clear stage trouble, including bad promoters, lousy openers, pompous headliners and beer-spilling fans.
+3. **The Show:** kick drunk fans off the stage, walk down into the crowd, fight through the unique mixer and bar areas, and clear the exit door. The playable musician is at least as tall as the performing guitarists. Return to the stage for the chorus.
 
 4. **Amp Emergency:** retrieve a replacement amp from the blue van and get it back through the venue door.
 
-5. **Groupie Scorecards:** rate the scorecards, then make one choice. A lucky pick awards giant power and a short power-up encore before the party.
+5. **Groupie Roulette:** choose three of nine faces for an animated slot machine. Three matching reels award 10,000 points. Include the hidden power face in your picks for giant power, match or no match.
 
 6. **Afterparty:** take on Beer Pong and **Blowin’ O’s — Smoke Ring Olympics** while teammates cheer and partygoers make regrettable decisions.
 
@@ -125,7 +129,7 @@ The secret stage is a survival run. Use **Space** or **Up** to jump. When the ru
 
 - **Villain’s Clear:** the main title and early-night practice, show and amp sequence.
 
-- **Circus Genetic – Dice:** from Groupie Scorecards, including its power-up encore, through the Afterparty, Beer Pong and Blowin’ O’s sequence.
+- **Circus Genetic – Dice:** from Groupie Roulette, including its power-up encore, through the Afterparty, Beer Pong and Blowin’ O’s sequence.
 
 - **Circus Get High:** starts with the Battle of the Bands TV ad and continues through the fight and victory. Defeat fades it into traffic, heckles, sirens and chip tones.
 
