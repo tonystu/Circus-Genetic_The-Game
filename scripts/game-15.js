@@ -1,0 +1,31 @@
+(()=>{const c=document.getElementById('cdCanvas'),g=c.getContext('2d'),back=document.getElementById('cdBackground'),b=back.getContext('2d'),screen=document.getElementById('chapters'),art=new Image();
+art.src=window.CG_ASSETS?.['assets/cd-bin.png']||'assets/cd-bin.png';
+const coverFiles=['assets/chapter-practice.png','assets/chapter-soundcheck.png','assets/chapter-show.png','assets/chapter-amp.png','assets/chapter-groupies.png','assets/chapter-party.png','assets/chapter-boss.png'];
+const covers=coverFiles.map(file=>{const im=new Image();im.src=window.CG_ASSETS?.[file]||file;return im});
+const coverColors=['#f1a545','#5bdae2','#f16cba','#71aaff','#ff789b','#b5df5d','#d399ff'];
+const chapters=[['practice','GARAGE PRACTICE'],['soundcheck','SOUNDCHECK'],['show','THE SHOW'],['amp','AMP EMERGENCY'],['groupies','GROUPIE SCORECARDS'],['party','AFTERPARTY'],['boss','BATTLE OF THE BANDS']],N=chapters.length,names=['MATT / BASS','BRICE / GUITAR','TONY / DRUMS'];let pick=0,slide=0,t=0,last=0,role=0,wasActive=false;
+const rect=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(Math.round(x),Math.round(y),w,h)};function text(s,x,y,k=1,col='#f0dfbc',align='left'){s=String(s).toUpperCase();if(align==='center')x-=s.length*6*k/2;if(align==='right')x-=s.length*6*k;for(const ch of s){const rows=(window.CG_FONT?.[ch]||'00000/00000/00000/00000/00000/00000/00000').split('/');rows.forEach((r,j)=>[...r].forEach((v,i)=>{if(v==='1')rect(x+i*k,y+j*k,k,k,col)}));x+=6*k}}
+const loaded=im=>im.complete&&im.naturalWidth;
+const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches===true;
+function cover(i,w,h){
+ rect(-w/2,0,w,h,['#a75e21','#195b66','#752456','#24437b','#9b2f49','#56772c','#593189'][i]);
+ const image=covers[i];if(loaded(image))g.drawImage(image,0,0,image.width,image.height,-w/2,0,w,h);
+}
+function jewel(index,off){const i=(index%N+N)%N,dist=Math.abs(off),w=206-Math.min(2.5,dist)*23,h=218-Math.min(2.5,dist)*20,x=320+off*75,y=402+Math.min(3,dist)*4;g.save();g.translate(Math.round(x),Math.round(y));g.rotate(Math.round((off*.1+(reducedMotion?0:Math.sin(t*.8)*.004))*30)/30);rect(-w/2-7,-h-6,w+14,h+8,'#0c101c');rect(-w/2-4,-h-3,w+8,h+2,'#8c989c');rect(-w/2,-h,w,h,'#c1c6bc');g.save();g.translate(0,-h+7);cover(i,w-16,h-18);rect(-w/2+7,7,w-14,15,'#111621c9');text('CIRCUS GENETIC',0,11,1,'#f2dfba','center');rect(-w/2+7,h-74,w-14,32,'#111621ef');rect(-w/2+7,h-74,w-14,3,coverColors[i]);text(chapters[i][1],0,h-63,1,coverColors[i],'center');rect(w/2-25,25,16,12,coverColors[i]);text('0'+(i+1),w/2-23,28,1,'#232332');g.restore();rect(-w/2-5,-h-1,8,h,'#202732');rect(-w/2+4,-h+7,2,h-17,'#f1f0d577');rect(w/2-5,-h+4,2,h-9,'#f1f0d599');rect(-w/2+8,-h+4,w-15,2,'#f7e9bd99');rect(w/2-33,-h+17,19,3,'#fbf9df88');
+if(dist<.22){
+ // A warm reflection travels across the jewel case, in stepped pixels.
+ const sweep=reducedMotion?-100:((t*.18)%1)*(w+100)-w/2-70;
+ for(let stripe=0;stripe<12;stripe++){
+  const yy=-h+12+stripe*12,xx=sweep+stripe*4;
+  if(xx>-w/2+12&&xx<w/2-18&&yy< -48){rect(Math.round(xx/2)*2,yy,10,10,'#fff5d51b');rect(Math.round(xx/2)*2+12,yy,2,10,'#fff5d526');}
+ }
+ const accent=coverColors[i],edge=w/2+7;
+ for(const side of [-1,1]){rect(side<0?-edge-5:edge-8,-h-10,13,3,accent);rect(side<0?-edge-5:edge+2,-h-10,3,13,accent);}
+}
+g.restore()}
+function flip(d){pick=(pick+d+N)%N;const delta=(((pick-slide+N/2)%N)+N)%N-N/2;slide=pick-delta;readout()}
+function readout(){document.getElementById('cdReadout').textContent='Chapter '+(pick+1)+' of '+N+': '+chapters[pick][1]+'. '+names[role]}
+function play(){document.getElementById('actionCanvas').dataset.player=role;window.pendingChapter=chapters[pick][0];show('select')}
+document.getElementById('cdPrev').onclick=()=>flip(-1);document.getElementById('cdNext').onclick=()=>flip(1);document.getElementById('cdPlay').onclick=play;document.getElementById('cdBack').onclick=()=>title();
+document.addEventListener('keydown',e=>{if(!screen.classList.contains('active'))return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter'].includes(e.key))e.preventDefault();if(e.key==='ArrowLeft')flip(-1);if(e.key==='ArrowRight')flip(1);if(e.key==='ArrowUp'){role=(role+2)%3;readout()}if(e.key==='ArrowDown'){role=(role+1)%3;readout()}if(e.key==='Enter')play()});let down=null;c.addEventListener('pointerdown',e=>{down=e.clientX});c.addEventListener('pointerup',e=>{if(down!==null&&Math.abs(e.clientX-down)>25){flip(e.clientX<down?1:-1);down=null;return}const r=c.getBoundingClientRect(),x=(e.clientX-r.left)*640/r.width,y=(e.clientY-r.top)*480/r.height;if(y>440){role=Math.max(0,Math.min(2,Math.floor(x/(640/3))));readout()}down=null});
+function loop(ms){const dt=Math.min(.05,(ms-last)/1000||.016);last=ms;t+=dt;if(screen.classList.contains('active')){if(!wasActive){role=Number(document.getElementById('actionCanvas').dataset.player)||0;readout()}wasActive=true;slide=reducedMotion?pick:slide+(pick-slide)*(1-Math.exp(-dt*14));g.clearRect(0,0,640,480);b.imageSmoothingEnabled=false;g.imageSmoothingEnabled=false;if(loaded(art))b.drawImage(art,0,0,640,480);else{b.fillStyle='#221c30';b.fillRect(0,0,640,480)}for(let k=0;k<6;k++)if(Math.sin(t*1.4+k)>.8){b.fillStyle='#c6ad8933';b.fillRect(52+k*97,110,3,4)}rect(0,0,640,85,'#10121acb');text('CHOOSE YOUR CHAPTER',320,21,2,'#e5d0a7','center');text('FLIP THROUGH THE OLD CDS',320,48,1,'#9ed4cb','center');text('ESC: TITLE',12,68,1,'#b8e15b');const cases=[];for(let j=-3;j<=3;j++)cases.push({index:pick+j,off:pick+j-slide});cases.sort((a,b)=>Math.abs(b.off)-Math.abs(a.off)).forEach(x=>jewel(x.index,x.off));if(loaded(art))g.drawImage(art,0,art.height*.745,art.width,art.height*.255,0,357,640,123);g.save();g.translate(514,394);g.rotate(-.035);rect(-67,-18,134,36,'#10121a');rect(-64,-15,128,30,'#d6aa69');text('VILLIAN',0,-7,2,'#252032','center');rect(-61,12,122,2,'#80503f');g.restore();rect(0,423,640,57,'#131a23e8');text('LEFT/RIGHT: FLIP   ENTER: PICK CD / CHOOSE PLAYER',320,431,1,'#f3dfbb','center');for(let i=0;i<3;i++){const x=10+i*211;rect(x,451,199,23,i===role?'#b1d96a':'#303638');text(names[i],x+99,459,1,i===role?'#15231c':'#d8c7ae','center')}if(Math.sin(t*4)>0){for(let j=-3;j<=3;j++){rect(35+Math.abs(j)*5,280+j*5,5,5,'#b4dc74');rect(599-Math.abs(j)*5,280+j*5,5,5,'#b4dc74')}}}else wasActive=false;requestAnimationFrame(loop)}requestAnimationFrame(loop)})();
