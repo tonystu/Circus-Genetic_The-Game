@@ -1,6 +1,6 @@
 CIRCUS GENETIC THE GAME
 
-http://circusgenetic.game/
+
 
 Windows desktop demo, version 1.0.0. Panta Rhei Productions.
 
