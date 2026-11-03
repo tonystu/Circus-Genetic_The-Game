@@ -200,7 +200,11 @@
       rect(g, x - 13 * size, feet - 39 * size, 26 * size, 27 * size, ['#e4c1b4','#91b4b2','#a48c69'][who]);
       rect(g, x - 12 * size, feet - 12 * size, 8 * size, 12 * size, C.ink);
       rect(g, x + 4 * size, feet - 12 * size, 8 * size, 12 * size, C.ink);
-      if (who === 2) { rect(g,x-20*size,feet-36*size,3*size,23*size,C.gold);rect(g,x+18*size,feet-36*size,3*size,23*size,C.gold); }
+      if (who === 2) {
+        rect(g,x-11*size,feet-63*size,21*size,7*size,'#080b12');rect(g,x+8*size,feet-58*size,15*size,3*size,'#080b12');
+        rect(g,x-2*size,feet-62*size,4*size,1*size,'#d63a36');rect(g,x-3*size,feet-61*size,1*size,3*size,'#d63a36');rect(g,x-2*size,feet-59*size,4*size,1*size,'#d63a36');
+        rect(g,x-20*size,feet-36*size,3*size,23*size,C.gold);rect(g,x+18*size,feet-36*size,3*size,23*size,C.gold);
+      }
       else rect(g,x-18*size,feet-29*size,37*size,7*size,who===0?'#37313e':'#5baf83');
       return;
     }
